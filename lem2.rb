@@ -1,34 +1,15 @@
-def load_libraries
-  require './lib/daru.rb'
-  require './lib/daru/version.rb'
-  require 'open-uri'
-  require './lib/daru/index/index.rb'
-  require './lib/daru/index/multi_index.rb'
-  require './lib/daru/index/categorical_index.rb'
-  require './lib/daru/helpers/array.rb'
-  require './lib/daru/vector.rb'
-  require './lib/daru/dataframe.rb'
-  require './lib/daru/monkeys.rb'
-  require './lib/daru/formatters/table'
-  require './lib/daru/iruby/helpers'
-  require './lib/daru/exceptions.rb'
-  require './lib/daru/core/group_by.rb'
-  require './lib/daru/core/query.rb'
-  require './lib/daru/core/merge.rb'
-  require './lib/daru/date_time/offsets.rb'
-  require './lib/daru/date_time/index.rb'
-end
-
 def main
   load_libraries
-
   print "Please give me an input filename: "
   filename = gets.chomp
-
-  print "Please give me an output filename ending in .txt: "
+  while invalid_file_name(filename)
+    print "Please give me an input filename (ending in .txt): "
+    filename = gets.chomp
+  end
+  print "Please give me an output filename: "
   ofilename = gets.chomp
   while invalid_file_name(ofilename)
-    print "Please give me an output filename ending in .txt: "
+    print "Please give me an output filename (ending in .txt): "
     ofilename = gets.chomp
   end
 
@@ -42,10 +23,10 @@ def main
   compute_rules
 
   File.open(ofilename, 'w') do |file|
-    @rules.each{ |rule| file << rule << "\n" }
+    file << "Rule set produced from the dataset in #{filename}:\n\n"
+    @rules.each{ |rule| file << rule.first[0] << "\n" << rule.first[1] << "\n" }
   end
-
-  puts "\nRules for #{filename} dataset have been sent to #{ofilename}\n"
+  puts "\n\nRules for #{filename} dataset have been sent to #{ofilename}\n\n"
   return 0
 end
 
@@ -386,11 +367,32 @@ def cases_covered_by_attributes(attrs)
 end
 
 def invalid_file_name(filename)
-  if filename.end_with?(".txt")
-    false
-  else
-    true
-  end
+  !filename.end_with?(".txt") ? true : false
+end
+
+def is_num(num)
+  (num.match?("[0-9]+") && (num.gsub("..","").length == num.length)) ? true : false
+end
+
+def load_libraries
+  require './lib/daru.rb'
+  require './lib/daru/version.rb'
+  require 'open-uri'
+  require './lib/daru/index/index.rb'
+  require './lib/daru/index/multi_index.rb'
+  require './lib/daru/index/categorical_index.rb'
+  require './lib/daru/helpers/array.rb'
+  require './lib/daru/vector.rb'
+  require './lib/daru/dataframe.rb'
+  require './lib/daru/monkeys.rb'
+  require './lib/daru/formatters/table'
+  require './lib/daru/iruby/helpers'
+  require './lib/daru/exceptions.rb'
+  require './lib/daru/core/group_by.rb'
+  require './lib/daru/core/query.rb'
+  require './lib/daru/core/merge.rb'
+  require './lib/daru/date_time/offsets.rb'
+  require './lib/daru/date_time/index.rb'
 end
 
 main
