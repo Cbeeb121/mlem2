@@ -1,5 +1,5 @@
 # mlem2
-For EECS 690 Data Mining. Implementation of the MLEM2 Algorithm
+By Clay Beabout (KUID: 2820559) For EECS 690 Data Mining. Implementation of the MLEM2 Algorithm
 
 # How to run the program
 From the repository, in a terminal window:
