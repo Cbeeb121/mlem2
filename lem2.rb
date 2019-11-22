@@ -264,32 +264,23 @@ def find_rules_for_goal(goal:)
   @current_goal_cases = cases_for_goal_value_pair(goal_val: goal)
   while(!all_cases_covered)
     while(!rule_found)
-      # puts "\n#{count} time looping through\n"
       index_of_best_attr_val_pair = grab_best_possible_attr_val_pair_index # Index where attribute_value pair has the most cases
-      # puts "index_of_best_attr_val_pair : #{index_of_best_attr_val_pair}"
 
       a_v_cases = grab_a_v_cases_and_unions(idx: index_of_best_attr_val_pair, other_indices: attributes)
       if a_v_cases.empty?
-        # puts "*"*50 + "NOT VALID SEARCH"
         rule_found = true
         all_cases_covered = true
       end
-      # puts "a_v_cases: #{a_v_cases}"
       goal_cases = cases_for_goal_value_pair(goal_val: goal)
-      # puts "goal_cases: #{@current_goal_cases}"
-      # puts "(a_v_cases - goal_cases): #{(a_v_cases - @current_goal_cases)}"
       if (a_v_cases - @current_goal_cases).empty? # If true, the attribute_value pair is a subset of our goal
-        # puts "WE HAVE ENOUGH ATTRIBUTES"
         attributes << index_of_best_attr_val_pair
         attributes = attributes.uniq
         rule = []
         rule << [formatxyz(attrs: attributes, goal: goal), format_rule(attrs: attributes, goal: goal)]
         @rules << rule
         attributes = []
-        # puts "@rules.count: #{@rules.count}"
         rule_found = true
         @current_goal_cases = @current_goal_cases - a_v_cases
-        # puts "leftover_cases: #{@current_goal_cases}"
         if @current_goal_cases.empty?
           all_cases_covered = true # WE HAVE COVERED ALL CASES
         else
@@ -298,11 +289,9 @@ def find_rules_for_goal(goal:)
           @lem2_table.add_vector(@current_goal_cases,goal_union_array)
         end
       else # ADD ATTRIBUTE AND KEEP WORKING
-        # puts "NEED MORE ATTRIBUTES"
         attributes << index_of_best_attr_val_pair
         attributes = attributes.uniq
         goal_union_array = grab_goal_attr_union(goal: "UseCurrentGoalCases", indices_to_not_include: attributes)
-        # puts "goal_union_array: #{goal_union_array}"
         @lem2_table.add_vector(@current_goal_cases,goal_union_array)
       end
     end
