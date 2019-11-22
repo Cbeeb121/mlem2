@@ -2,8 +2,8 @@ def main
   load_libraries
   print "Please give me an input filename: "
   filename = gets.chomp
-  while invalid_file_name(filename)
-    print "Please give me an input filename (ending in .txt): "
+  while !File.exist?(filename) || invalid_file_name(filename)
+    print "Please give me an input filename `present in the directory` (ending in .txt): "
     filename = gets.chomp
   end
   print "Please give me an output filename: "
