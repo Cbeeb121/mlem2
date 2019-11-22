@@ -1,39 +1,51 @@
-require './lib/daru.rb'
-require './lib/daru/version.rb'
-require 'open-uri'
-require './lib/daru/index/index.rb'
-require './lib/daru/index/multi_index.rb'
-require './lib/daru/index/categorical_index.rb'
-require './lib/daru/helpers/array.rb'
-require './lib/daru/vector.rb'
-require './lib/daru/dataframe.rb'
-require './lib/daru/monkeys.rb'
-require './lib/daru/formatters/table'
-require './lib/daru/iruby/helpers'
-require './lib/daru/exceptions.rb'
-require './lib/daru/core/group_by.rb'
-require './lib/daru/core/query.rb'
-require './lib/daru/core/merge.rb'
-require './lib/daru/date_time/offsets.rb'
-require './lib/daru/date_time/index.rb'
+def load_libraries
+  require './lib/daru.rb'
+  require './lib/daru/version.rb'
+  require 'open-uri'
+  require './lib/daru/index/index.rb'
+  require './lib/daru/index/multi_index.rb'
+  require './lib/daru/index/categorical_index.rb'
+  require './lib/daru/helpers/array.rb'
+  require './lib/daru/vector.rb'
+  require './lib/daru/dataframe.rb'
+  require './lib/daru/monkeys.rb'
+  require './lib/daru/formatters/table'
+  require './lib/daru/iruby/helpers'
+  require './lib/daru/exceptions.rb'
+  require './lib/daru/core/group_by.rb'
+  require './lib/daru/core/query.rb'
+  require './lib/daru/core/merge.rb'
+  require './lib/daru/date_time/offsets.rb'
+  require './lib/daru/date_time/index.rb'
+end
 
 def main
-  print "Please give me a filename: "
+  load_libraries
+
+  print "Please give me an input filename: "
   filename = gets.chomp
+
+  print "Please give me an output filename ending in .txt: "
+  ofilename = gets.chomp
+  while invalid_file_name(ofilename)
+    print "Please give me an output filename ending in .txt: "
+    ofilename = gets.chomp
+  end
 
   initial_table = file_to_array(filename: filename)
   @num_of_columns = initial_table.count
   data_table = reformat_table(initial_table)
-
   create_data_frame(data_table)
-
   @lem2_table = Daru::DataFrame.new
   build_attribute_value_pairs
   @goals = build_goals
-  print_goals
-
   compute_rules
 
+  File.open(ofilename, 'w') do |file|
+    @rules.each{ |rule| file << rule << "\n" }
+  end
+
+  puts "\nRules for #{filename} dataset have been sent to #{ofilename}\n"
   return 0
 end
 
@@ -371,6 +383,14 @@ def cases_covered_by_attributes(attrs)
     end
   end
   arr.uniq
+end
+
+def invalid_file_name(filename)
+  if filename.end_with?(".txt")
+    false
+  else
+    true
+  end
 end
 
 main
