@@ -14,19 +14,24 @@ def main
   end
 
   initial_table = file_to_array(filename: filename)
-  @num_of_columns = initial_table.count
-  data_table = reformat_table(initial_table)
-  create_data_frame(data_table)
-  @lem2_table = Daru::DataFrame.new
-  build_attribute_value_pairs
-  @goals = build_goals
-  compute_rules
 
-  File.open(ofilename, 'w') do |file|
-    file << "Rule set produced from the dataset in #{filename}:\n\n"
-    @rules.each{ |rule| file << rule.first[0] << "\n" << rule.first[1] << "\n" }
+  if @stop_program
+    puts "Your file was not in a valid format. First line must be formatted like \"< a a a a d >\""
+  else
+    @num_of_columns = initial_table.count
+    data_table = reformat_table(initial_table)
+    create_data_frame(data_table)
+    @lem2_table = Daru::DataFrame.new
+    build_attribute_value_pairs
+    @goals = build_goals
+    compute_rules
+
+    File.open(ofilename, 'w') do |file|
+      file << "Rule set produced from the dataset in #{filename}:\n\n"
+      @rules.each{ |rule| file << rule.first[0] << "\n" << rule.first[1] << "\n" }
+    end
+    puts "\n\nRules for #{filename} dataset have been sent to #{ofilename}\n\n"
   end
-  puts "\n\nRules for #{filename} dataset have been sent to #{ofilename}\n\n"
   return 0
 end
 
@@ -38,6 +43,7 @@ def file_to_array(filename:)
   array = []
   file = File.open(filename).each_with_index do |line, idx|
     if idx == 0
+      @stop_program = true if !line.include?("<")
       @num_of_attributes = line.scan(/a/).count
     else
       if idx == 1
