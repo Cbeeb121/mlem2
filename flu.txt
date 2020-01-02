@@ -1,0 +1,10 @@
+< a a a d >
+[ Temperature Cough Sneeze Flu ]
+normal no no very-unlikely
+hot somewhat somewhat likely
+normal somewhat no unlikely
+hot somewhat somewhat likely
+normal no yes very-unlikely
+hot no somewhat likely
+hot yes yes highly-likely
+normal yes yes highly-likely
