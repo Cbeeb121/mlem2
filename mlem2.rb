@@ -1,13 +1,15 @@
 def main
   load_libraries
-  print "Please give me an input filename: "
-  filename = gets.chomp
+  # print "Please give me an input filename: "
+  # filename = gets.chomp
+  filename = "iris.txt"
   while !File.exist?(filename) || invalid_file_name(filename)
     print "Please give me an input filename `present in the directory` (ending in .txt): "
     filename = gets.chomp
   end
-  print "Please give me an output filename: "
-  ofilename = gets.chomp
+  # print "Please give me an output filename: "
+  # ofilename = gets.chomp
+  ofilename = "blah.txt"
   while invalid_file_name(ofilename)
     print "Please give me an output filename (ending in .txt): "
     ofilename = gets.chomp
@@ -80,7 +82,7 @@ end
   # @attributes_and_decision_name
 def create_data_frame(arr)
   @df = Daru::DataFrame.new(arr)
-  @attributes_and_decision_name = Daru::Index.new(@df.row[0].map { |x| x.to_sym })
+  @attributes_and_decision_name = Daru::Index.new(@df.row[0].map(&:to_sym))
   @df.vectors = @attributes_and_decision_name
   @df.delete_row(0)
 end
@@ -160,13 +162,13 @@ end
 # Global Variables
   # @df
 def cases_for_goal_value_pair(goal_val:)
-  cases_arr = []
   goal_as_symbol = goal_val[/[^,]+/].gsub("(", "").to_sym # "(D, V-Small)" --> :D
-  value = goal_val.partition(",").last.gsub(" ", "").gsub(")", "") # "(A, 0.8)" --> "0.8"
-  @df[goal_as_symbol].each_with_index do |val, idx|
-    cases_arr << idx if val == value
+  value = goal_val.partition(",")
+                  .last.gsub(" ", "")
+                  .gsub(")", "") # "(A, 0.8)" --> "0.8"
+  @df[goal_as_symbol].each_with_index.map do |val, idx|
+    idx if val == value
   end
-  cases_arr
 end
 
 # Global Variables
@@ -232,7 +234,7 @@ def map_unions_for_current_goal(column:)
     end
   end
   indices = []
-  column.each_with_index do |val, idx|
+  column.each_with_index.map do |val, idx|
     indices << idx if @lem2_table.data.last.at(idx).count >= maximum_coverage
   end
   indices
@@ -319,11 +321,9 @@ def grab_a_v_cases_and_unions(idx:, other_indices:)
 end
 
 def format_rule(attrs:, goal:)
-  attr_names = []
-  attrs.each do |attr_idx|
-    attr_names << @lem2_table[:a_v].at(attr_idx)
-  end
-  "#{attr_names.join(" & ")} -> #{goal}"
+  "#{attrs.map do |attr_idx| 
+    @lem2_table[:a_v].at(attr_idx) 
+  end.join(" & ")} -> #{goal}"
 end
 
 def formatxyz(attrs:, goal:)
@@ -339,21 +339,22 @@ def size_of_attribute_domain(attributes)
 end
 
 def cases_covered_by_goal(goal)
-  arr = []
   goal_name = goal.split(",")[0].gsub("(","")
-  goal_val = goal.partition(",").last.gsub(")","").gsub(" ","")
-  @df[goal_name.to_sym].each_with_index do |value, i|
-    arr << i if goal_val == value
+  goal_val  = goal.partition(",")
+                  .last
+                  .gsub(")","")
+                  .gsub(" ","")
+  @df[goal_name.to_sym].each_with_index.map do |value, i|
+    i if goal_val == value
   end
-  arr
 end
 
 def cases_covered_by_attributes(attrs)
   arr = []
   attrs.each do |attr_index|
     attr_val_pair = @lem2_table[:a_v].at(attr_index)
-    attr_name = attr_val_pair.split(",")[0].gsub("(", "")
-    attr_val = attr_val_pair.partition(",").last.gsub(")","").gsub(" ", "")
+    attr_name     = attr_val_pair.split(",")[0].gsub("(", "")
+    attr_val      = attr_val_pair.partition(",").last.gsub(")","").gsub(" ", "")
     @df[attr_name.to_sym].each_with_index do |value, i|
       arr << i if attr_val == value
     end
